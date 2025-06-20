@@ -62,11 +62,11 @@ fi
 
 # Build the package
 echo "🔨 Building package..."
-npm run build
+pnpm run build
 
 # Test the package
 echo "🧪 Testing package..."
-npm test
+pnpm test
 
 echo ""
 echo "🎉 Setup Complete!"

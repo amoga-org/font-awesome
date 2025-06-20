@@ -33,15 +33,15 @@ fi
 
 # Build the package
 echo "🔨 Building the package..."
-npm run build
+pnpm run build
 
 # Test the package
 echo "🧪 Testing the package..."
-npm test
+pnpm test
 
 # Validate package contents
 echo "📋 Validating package contents..."
-npm run pack:dry
+pnpm run pack:dry
 
 echo ""
 echo "✅ Setup complete! Your package is ready for publishing."
@@ -49,7 +49,7 @@ echo ""
 echo "📚 Next steps:"
 echo "   1. Create GitHub repository: https://github.com/amoga-org/font-awesome"
 echo "   2. Push your code: git push origin main"
-echo "   3. Create a release: npm run version:patch"
+echo "   3. Create a release: pnpm run version:patch"
 echo "   4. The GitHub Action will automatically publish your package"
 echo ""
 echo "📖 For detailed instructions, see PUBLISHING.md"
