@@ -11,8 +11,6 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
 
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
@@ -27,7 +25,7 @@ jobs:
 
       - name: Install dependencies
         run: pnpm install
-        
+
       - name: Build package
         run: pnpm run build
 
@@ -36,8 +34,8 @@ jobs:
 
       - name: Pack package
         run: |
-          PACKAGE_NAME=$(pnpm pack)
-          echo "PACKAGE_NAME=$PACKAGE_NAME" >> $GITHUB_ENV
+          pnpm pack
+          echo "PACKAGE_NAME=$(ls amoga-org-font-awesome-*.tgz)" >> $GITHUB_ENV
         
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
@@ -58,8 +56,6 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
 
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
@@ -86,6 +82,9 @@ jobs:
       - name: Get version from tag
         id: get_version
         run: echo "VERSION=${GITHUB_REF#refs/tags/v}" >> $GITHUB_OUTPUT
+
+      - name: Set package name
+        run: echo "PACKAGE_NAME=$(ls amoga-org-font-awesome-*.tgz)" >> $GITHUB_ENV
 
       - name: Check if release exists
         id: check_release
