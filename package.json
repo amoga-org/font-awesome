@@ -1,9 +1,13 @@
 {
-  "name": "@amoga-org/font-awesome",
-  "version": "1.0.7",
+  "name": "amoga-org-font-awesome",
+  "version": "1.1.0",
   "description": "Font Awesome icon library with ES module exports",
   "main": "index.js",
   "type": "module",
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://npm.pkg.github.com"
+  },
   "exports": {
     "./icons/classic/light": "./dist/icons/classic/light/index.js",
     "./icons/classic/regular": "./dist/icons/classic/regular/index.js",
@@ -62,8 +66,5 @@
   },
   "engines": {
     "node": ">=16.0.0"
-  },
-  "publishConfig": {
-    "registry": "https://npm.pkg.github.com"
   }
 }
