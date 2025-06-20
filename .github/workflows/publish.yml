@@ -3,13 +3,12 @@ name: Public Package CI/CD Pipeline
 on:
   push:
     branches: [feat/public-package]
-    tags: ["public-v*"]
   pull_request:
     branches: [feat/public-package]
 
 jobs:
   test:
-    if: github.event_name == 'pull_request' || (github.event_name == 'push' && !startsWith(github.ref, 'refs/tags/'))
+    if: github.event_name == 'pull_request'
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -38,39 +37,8 @@ jobs:
       - name: Validate
         run: pnpm run validate
 
-  create-tag:
+  release:
     if: github.event_name == 'push' && github.ref == 'refs/heads/feat/public-package'
-    needs: test
-    runs-on: ubuntu-latest
-    permissions:
-      contents: write
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-      - name: Get version
-        id: get_version
-        run: |
-          VERSION=$(node -p "require('./package.json').version")
-          echo "version=$VERSION" >> $GITHUB_OUTPUT
-      - name: Check if tag exists
-        id: check_tag
-        run: |
-          if git rev-parse "public-v${{ steps.get_version.outputs.version }}" >/dev/null 2>&1; then
-            echo "exists=true" >> $GITHUB_OUTPUT
-          else
-            echo "exists=false" >> $GITHUB_OUTPUT
-          fi
-      - name: Create and push tag
-        if: steps.check_tag.outputs.exists != 'true'
-        run: |
-          git config --local user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git config --local user.name "github-actions[bot]"
-          git tag "public-v${{ steps.get_version.outputs.version }}"
-          git push origin "public-v${{ steps.get_version.outputs.version }}"
-
-  publish:
-    if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/public-v')
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -78,46 +46,70 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v4
         with:
-          version: 8
+          fetch-depth: 0
 
-      - name: Setup Node.js
+      - name: Get version
+        id: get_version
+        run: echo "VERSION=$(node -p \"require('./package.json').version\")" >> $GITHUB_OUTPUT
+
+      - name: Check if tag exists
+        id: check_tag
+        run: |
+          if git rev-parse "refs/tags/public-v${{ steps.get_version.outputs.VERSION }}" >/dev/null 2>&1; then
+            echo "Tag public-v${{ steps.get_version.outputs.VERSION }} already exists. Skipping release."
+            echo "exists=true" >> $GITHUB_OUTPUT
+          else
+            echo "Tag public-v${{ steps.get_version.outputs.VERSION }} does not exist. Proceeding with release."
+            echo "exists=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Setup Node.js and pnpm
+        if: steps.check_tag.outputs.exists == 'false'
         uses: actions/setup-node@v4
         with:
           node-version: "18"
           cache: "pnpm"
           registry-url: "https://registry.npmjs.org/"
+      - uses: pnpm/action-setup@v4
+        if: steps.check_tag.outputs.exists == 'false'
+        with:
+          version: 8
 
-      - name: Install dependencies
-        run: pnpm install
+      - name: Install and Build
+        if: steps.check_tag.outputs.exists == 'false'
+        run: |
+          pnpm install
+          pnpm run build
 
-      - name: Build package
-        run: pnpm run build
+      - name: Create and Push Tag
+        if: steps.check_tag.outputs.exists == 'false'
+        run: |
+          git config --local user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+          git tag "public-v${{ steps.get_version.outputs.VERSION }}"
+          git push origin "public-v${{ steps.get_version.outputs.VERSION }}"
 
       - name: Pack package
+        if: steps.check_tag.outputs.exists == 'false'
         run: |
           pnpm pack
           echo "PACKAGE_NAME=$(ls amoga-org-font-awesome-*.tgz)" >> $GITHUB_ENV
 
-      - name: Get version from tag
-        id: get_version
-        run: echo "VERSION=${GITHUB_REF#refs/tags/public-v}" >> $GITHUB_OUTPUT
-
       - name: Create GitHub Release
+        if: steps.check_tag.outputs.exists == 'false'
         id: create_release
         uses: actions/create-release@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          tag_name: ${{ github.ref }}
-          release_name: Release ${{ steps.get_version.outputs.VERSION }}
+          tag_name: "public-v${{ steps.get_version.outputs.VERSION }}"
+          release_name: "Release public-v${{ steps.get_version.outputs.VERSION }}"
           draft: false
           prerelease: false
 
       - name: Upload Release Asset
+        if: steps.check_tag.outputs.exists == 'false'
         uses: actions/upload-release-asset@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -128,6 +120,7 @@ jobs:
           asset_content_type: application/gzip
 
       - name: Publish to NPM
+        if: steps.check_tag.outputs.exists == 'false'
         run: pnpm publish --no-git-checks --access public
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_AUTH_TOKEN }}
