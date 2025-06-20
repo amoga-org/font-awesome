@@ -1,6 +1,6 @@
 {
   "name": "@amoga-org/font-awesome",
-  "version": "1.0.5",
+  "version": "1.0.6",
   "description": "Font Awesome icon library with ES module exports",
   "main": "index.js",
   "type": "module",
