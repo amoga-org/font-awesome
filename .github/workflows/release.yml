@@ -57,13 +57,13 @@ jobs:
 
           ## Installation
           \`\`\`bash
-          npm install @your-org/font-awesome-icons
+          npm install @amoga-org/font-awesome
           \`\`\`
 
           ## Usage
           \`\`\`javascript
-          import { faHeart } from '@your-org/font-awesome-icons/icons/classic/solid';
-          import { faAlignCenter } from '@your-org/font-awesome-icons/icons/classic/light';
+          import { faHeart } from '@amoga-org/font-awesome/icons/classic/solid';
+          import { faAlignCenter } from '@amoga-org/font-awesome/icons/classic/light';
           \`\`\`
           EOF
 
@@ -92,5 +92,5 @@ jobs:
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
           asset_path: ./*.tgz
-          asset_name: font-awesome-icons-${{ steps.version.outputs.VERSION }}.tgz
+          asset_name: font-awesome-${{ steps.version.outputs.VERSION }}.tgz
           asset_content_type: application/gzip

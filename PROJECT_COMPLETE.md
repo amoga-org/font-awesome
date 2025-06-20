@@ -33,18 +33,15 @@ import {
   faAlignCenter,
   faArrowRightToLine,
   faChevronDown,
-} from "@your-org/font-awesome-icons/icons/classic/light";
+} from "@amoga-org/font-awesome/icons/classic/light";
 
-import {
-  faHeart,
-  faUser,
-} from "@your-org/font-awesome-icons/icons/classic/solid";
+import { faHeart, faUser } from "@amoga-org/font-awesome/icons/classic/solid";
 
 import {
   faFacebook,
   faTwitter,
   faGithub,
-} from "@your-org/font-awesome-icons/icons/brands";
+} from "@amoga-org/font-awesome/icons/brands";
 ```
 
 ### ✅ Icon Structure (Font Awesome Compatible)
@@ -75,7 +72,7 @@ import {
 ### 1. Customize for Your Needs
 
 - Update `package.json` with your GitHub username/organization
-- Modify the package name from `@your-org/font-awesome-icons`
+- Modify the package name from `@amoga-org/font-awesome`
 - Update repository URLs and author information
 
 ### 2. Publish to GitHub Packages

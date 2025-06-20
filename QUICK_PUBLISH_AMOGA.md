@@ -1,4 +1,4 @@
-# 🚀 Quick Publishing Guide for @amoga-org/font-awesome-icons
+# 🚀 Quick Publishing Guide for @amoga-org/font-awesome
 
 ## Immediate Setup (5 minutes)
 
@@ -7,7 +7,7 @@
 ```bash
 # Go to: https://github.com/amoga-org
 # Click "New" repository
-# Repository name: font-awesome-icons
+# Repository name: font-awesome
 # Make it Public
 # Don't initialize with README (you already have files)
 ```
@@ -15,7 +15,7 @@
 ### 2. Connect Your Local Repository
 
 ```bash
-git remote add origin https://github.com/amoga-org/font-awesome-icons.git
+git remote add origin https://github.com/amoga-org/font-awesome.git
 git branch -M main
 git push -u origin main
 ```
@@ -38,7 +38,7 @@ npm run version:patch
 Once published, install in any project:
 
 ```bash
-npm install @amoga-org/font-awesome-icons
+npm install @amoga-org/font-awesome
 ```
 
 Then use exactly like Font Awesome Pro:
@@ -48,12 +48,9 @@ import {
   faAlignCenter,
   faArrowRightToLine,
   faChevronDown,
-} from "@amoga-org/font-awesome-icons/icons/classic/light";
+} from "@amoga-org/font-awesome/icons/classic/light";
 
-import {
-  faHeart,
-  faUser,
-} from "@amoga-org/font-awesome-icons/icons/classic/solid";
+import { faHeart, faUser } from "@amoga-org/font-awesome/icons/classic/solid";
 ```
 
 ## Version Management
@@ -87,10 +84,10 @@ After publishing, test in a new project:
 mkdir test-project
 cd test-project
 npm init -y
-npm install @amoga-org/font-awesome-icons
+npm install @amoga-org/font-awesome
 
 # Create test.js
-echo 'import { faHeart } from "@amoga-org/font-awesome-icons/icons/classic/solid";
+echo 'import { faHeart } from "@amoga-org/font-awesome/icons/classic/solid";
 console.log("Icon loaded:", faHeart.iconName);' > test.js
 
 # Add to package.json: "type": "module"
@@ -104,14 +101,14 @@ node test.js
 
 **Publishing fails?**
 
-- Check GitHub repository exists: https://github.com/amoga-org/font-awesome-icons
+- Check GitHub repository exists: https://github.com/amoga-org/font-awesome
 - Verify GitHub token permissions in repository settings
 - Ensure you're a member of amoga-org with publishing rights
 
 **Import fails?**
 
 - Wait 5-10 minutes after publishing for package to be available
-- Check package exists: https://github.com/amoga-org/font-awesome-icons/packages
+- Check package exists: https://github.com/amoga-org/font-awesome/packages
 
 **Need help?**
 

@@ -5,7 +5,7 @@ A public GitHub package that provides Font Awesome icons as ES modules, compatib
 ## Installation
 
 ```bash
-npm install @your-org/font-awesome-icons
+npm install @amoga-org/font-awesome
 ```
 
 ## Usage
@@ -17,30 +17,30 @@ import {
   faAlignCenter,
   faArrowRightToLine,
   faChevronDown,
-} from "@your-org/font-awesome-icons/icons/classic/light";
+} from "@amoga-org/font-awesome/icons/classic/light";
 import {
   faHeart,
   faUser,
   faHome,
-} from "@your-org/font-awesome-icons/icons/classic/solid";
+} from "@amoga-org/font-awesome/icons/classic/solid";
 import {
   faFacebook,
   faTwitter,
   faGithub,
-} from "@your-org/font-awesome-icons/icons/brands";
+} from "@amoga-org/font-awesome/icons/brands";
 ```
 
 ## Available Styles
 
-- **Classic Light**: `@your-org/font-awesome-icons/icons/classic/light`
-- **Classic Regular**: `@your-org/font-awesome-icons/icons/classic/regular`
-- **Classic Solid**: `@your-org/font-awesome-icons/icons/classic/solid`
-- **Brands**: `@your-org/font-awesome-icons/icons/brands`
-- **Duotone**: `@your-org/font-awesome-icons/icons/duotone`
-- **Sharp Light**: `@your-org/font-awesome-icons/icons/sharp-light`
-- **Sharp Regular**: `@your-org/font-awesome-icons/icons/sharp-regular`
-- **Sharp Solid**: `@your-org/font-awesome-icons/icons/sharp-solid`
-- **Thin**: `@your-org/font-awesome-icons/icons/thin`
+- **Classic Light**: `@amoga-org/font-awesome/icons/classic/light`
+- **Classic Regular**: `@amoga-org/font-awesome/icons/classic/regular`
+- **Classic Solid**: `@amoga-org/font-awesome/icons/classic/solid`
+- **Brands**: `@amoga-org/font-awesome/icons/brands`
+- **Duotone**: `@amoga-org/font-awesome/icons/duotone`
+- **Sharp Light**: `@amoga-org/font-awesome/icons/sharp-light`
+- **Sharp Regular**: `@amoga-org/font-awesome/icons/sharp-regular`
+- **Sharp Solid**: `@amoga-org/font-awesome/icons/sharp-solid`
+- **Thin**: `@amoga-org/font-awesome/icons/thin`
 
 ## Icon Structure
 
@@ -65,8 +65,8 @@ Each icon is an object with the following structure:
 The package includes full TypeScript definitions:
 
 ```typescript
-import { IconDefinition } from "@your-org/font-awesome-icons";
-import { faAlignCenter } from "@your-org/font-awesome-icons/icons/classic/light";
+import { IconDefinition } from "@amoga-org/font-awesome";
+import { faAlignCenter } from "@amoga-org/font-awesome/icons/classic/light";
 
 const icon: IconDefinition = faAlignCenter;
 ```

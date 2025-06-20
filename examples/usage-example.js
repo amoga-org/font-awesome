@@ -60,7 +60,7 @@ console.log(renderSvg(faHeart, "heart-icon"));
 console.log("\n5. React Component Usage Example:");
 console.log(`
 import React from 'react';
-import { faHeart } from '@your-org/font-awesome-icons/icons/classic/solid';
+import { faHeart } from '@amoga-org/font-awesome/icons/classic/solid';
 
 const Icon = ({ icon, className = '' }) => {
   const [width, height, , , pathData] = icon.icon;

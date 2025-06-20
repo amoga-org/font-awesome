@@ -1,5 +1,5 @@
 {
-  "name": "@amoga-org/font-awesome-icons",
+  "name": "@amoga-org/font-awesome",
   "version": "1.0.0",
   "description": "Font Awesome icon library with ES module exports",
   "main": "index.js",
@@ -42,7 +42,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/amoga-org/font-awesome-icons.git"
+    "url": "git+https://github.com/amoga-org/font-awesome.git"
   },
   "keywords": [
     "font-awesome",
@@ -54,9 +54,9 @@
   "author": "Your Name",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/amoga-org/font-awesome-icons/issues"
+    "url": "https://github.com/amoga-org/font-awesome/issues"
   },
-  "homepage": "https://github.com/amoga-org/font-awesome-icons#readme",
+  "homepage": "https://github.com/amoga-org/font-awesome#readme",
   "devDependencies": {
     "@types/node": "^20.0.0"
   },

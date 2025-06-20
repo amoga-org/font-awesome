@@ -204,7 +204,7 @@ export * as solidIcons from './dist/icons/classic/solid/index.js';
 export * as brandIcons from './dist/icons/brands/index.js';
 
 export const packageInfo = {
-  name: '@amoga-org/font-awesome-icons',
+  name: '@amoga-org/font-awesome',
   version: '1.0.0',
   totalIcons: ${totalIcons},
   styles: [${styleDirs.map((s) => `'${s}'`).join(", ")}]
