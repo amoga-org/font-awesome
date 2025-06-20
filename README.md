@@ -6,7 +6,13 @@ A public GitHub package that provides Font Awesome icons as ES modules, compatib
 
 ```bash
 npm install @amoga-org/font-awesome
+# or
+yarn add @amoga-org/font-awesome
+# or  
+pnpm add @amoga-org/font-awesome
 ```
+
+No authentication required! 🎉
 
 ## Usage
 
