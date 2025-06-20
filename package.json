@@ -1,0 +1,69 @@
+{
+  "name": "@amoga-org/font-awesome-icons",
+  "version": "1.0.0",
+  "description": "Font Awesome icon library with ES module exports",
+  "main": "index.js",
+  "type": "module",
+  "exports": {
+    "./icons/classic/light": "./dist/icons/classic/light/index.js",
+    "./icons/classic/regular": "./dist/icons/classic/regular/index.js",
+    "./icons/classic/solid": "./dist/icons/classic/solid/index.js",
+    "./icons/brands": "./dist/icons/brands/index.js",
+    "./icons/duotone": "./dist/icons/duotone/index.js",
+    "./icons/duotone-light": "./dist/icons/duotone-light/index.js",
+    "./icons/duotone-regular": "./dist/icons/duotone-regular/index.js",
+    "./icons/duotone-thin": "./dist/icons/duotone-thin/index.js",
+    "./icons/sharp-light": "./dist/icons/sharp-light/index.js",
+    "./icons/sharp-regular": "./dist/icons/sharp-regular/index.js",
+    "./icons/sharp-solid": "./dist/icons/sharp-solid/index.js",
+    "./icons/sharp-thin": "./dist/icons/sharp-thin/index.js",
+    "./icons/thin": "./dist/icons/thin/index.js"
+  },
+  "files": [
+    "dist/",
+    "icons/",
+    "types/",
+    "README.md"
+  ],
+  "scripts": {
+    "build": "node scripts/build-icons.js",
+    "clean": "rm -rf dist",
+    "prebuild": "npm run clean",
+    "prepare": "npm run build",
+    "test": "node scripts/test-imports.js",
+    "setup:publishing": "./scripts/setup-amoga-org.sh",
+    "version:patch": "npm version patch && git push origin main --tags",
+    "version:minor": "npm version minor && git push origin main --tags",
+    "version:major": "npm version major && git push origin main --tags",
+    "prepublishOnly": "npm run build && npm test",
+    "pack:dry": "npm pack --dry-run",
+    "publish:manual": "npm publish",
+    "validate": "npm run build && npm test && npm run pack:dry"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/amoga-org/font-awesome-icons.git"
+  },
+  "keywords": [
+    "font-awesome",
+    "icons",
+    "svg",
+    "es-modules",
+    "typescript"
+  ],
+  "author": "Your Name",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/amoga-org/font-awesome-icons/issues"
+  },
+  "homepage": "https://github.com/amoga-org/font-awesome-icons#readme",
+  "devDependencies": {
+    "@types/node": "^20.0.0"
+  },
+  "engines": {
+    "node": ">=16.0.0"
+  },
+  "publishConfig": {
+    "registry": "https://npm.pkg.github.com"
+  }
+}

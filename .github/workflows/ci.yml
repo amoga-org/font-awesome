@@ -1,0 +1,162 @@
+name: CI
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: [16, 18, 20]
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: "npm"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build package
+        run: npm run build
+
+      - name: Test imports
+        run: npm test
+
+      - name: Verify package can be packed
+        run: npm pack --dry-run
+
+  lint:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "18"
+          cache: "npm"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Check package.json format
+        run: |
+          if ! jq empty package.json; then
+            echo "package.json is not valid JSON"
+            exit 1
+          fi
+
+      - name: Verify exports structure
+        run: |
+          node -e "
+            const pkg = require('./package.json');
+            const requiredExports = [
+              './icons/classic/light',
+              './icons/classic/regular', 
+              './icons/classic/solid',
+              './icons/brands'
+            ];
+            const missing = requiredExports.filter(exp => !pkg.exports[exp]);
+            if (missing.length > 0) {
+              console.error('Missing exports:', missing);
+              process.exit(1);
+            }
+            console.log('✓ All required exports present');
+          "
+
+  build-validation:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "18"
+          cache: "npm"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build package
+        run: npm run build
+
+      - name: Check dist directory
+        run: |
+          if [ ! -d "dist" ]; then
+            echo "Build failed: dist directory not created"
+            exit 1
+          fi
+
+          # Check for required output directories
+          required_dirs=(
+            "dist/icons/classic/light"
+            "dist/icons/classic/regular"
+            "dist/icons/classic/solid"
+            "dist/icons/brands"
+          )
+
+          for dir in "${required_dirs[@]}"; do
+            if [ ! -d "$dir" ]; then
+              echo "Missing directory: $dir"
+              exit 1
+            fi
+            
+            if [ ! -f "$dir/index.js" ]; then
+              echo "Missing index.js in: $dir"
+              exit 1
+            fi
+          done
+
+          echo "✓ All required directories and files present"
+
+      - name: Validate generated modules
+        run: |
+          # Test that generated modules are valid JavaScript
+          node -e "
+            const fs = require('fs');
+            const path = require('path');
+            
+            function validateModule(filePath) {
+              try {
+                const content = fs.readFileSync(filePath, 'utf8');
+                // Basic validation - check for export statements
+                if (!content.includes('export const fa')) {
+                  throw new Error('No icon exports found');
+                }
+                console.log('✓ Valid module:', filePath);
+              } catch (error) {
+                console.error('✗ Invalid module:', filePath, error.message);
+                process.exit(1);
+              }
+            }
+            
+            validateModule('dist/icons/classic/light/index.js');
+            validateModule('dist/icons/classic/solid/index.js');
+            validateModule('dist/icons/brands/index.js');
+          "
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-output
+          path: |
+            dist/
+            index.js
+            index.d.ts
+          retention-days: 7
