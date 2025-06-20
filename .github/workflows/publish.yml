@@ -20,10 +20,11 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: "22"
+          node-version: "18"
+          cache: "pnpm"
 
       - name: Install dependencies
-        run: pnpm install --no-frozen-lockfile
+        run: pnpm install --frozen-lockfile
 
       - name: Build package
         run: pnpm run build
@@ -31,16 +32,19 @@ jobs:
       - name: Test imports
         run: pnpm test
 
-      - name: Create package tarball
-        run: pnpm pack
+      - name: Pack package
+        run: |
+          PACKAGE_NAME=$(pnpm pack)
+          echo "PACKAGE_NAME=$PACKAGE_NAME" >> $GITHUB_ENV
         
-      - name: Upload build artifacts
+      - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: dist
+          name: package-artifacts
           path: |
             dist/
-            *.tgz
+            ${{ env.PACKAGE_NAME }}
+          if-no-files-found: error
 
   release-and-publish:
     needs: build-and-test
@@ -62,17 +66,18 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: "18"
+          cache: "pnpm"
           registry-url: "https://npm.pkg.github.com"
           scope: "@amoga-org"
 
-      - name: Download build artifacts
+      - name: Download artifacts
         uses: actions/download-artifact@v4
         with:
-          name: dist
-          path: dist/
+          name: package-artifacts
+          path: .
 
       - name: Install dependencies
-        run: pnpm install --no-frozen-lockfile
+        run: pnpm install --frozen-lockfile
 
       - name: Get version from tag
         id: get_version
@@ -112,11 +117,11 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.check_release.outputs.exists == 'true' && steps.check_release.outputs.upload_url || steps.create_release.outputs.upload_url }}
-          asset_path: ./amoga-org-font-awesome-${{ steps.get_version.outputs.VERSION }}.tgz
-          asset_name: amoga-org-font-awesome-${{ steps.get_version.outputs.VERSION }}.tgz
+          asset_path: ${{ env.PACKAGE_NAME }}
+          asset_name: ${{ env.PACKAGE_NAME }}
           asset_content_type: application/gzip
 
       - name: Publish to GitHub Packages
-        run: pnpm publish
+        run: pnpm publish --no-git-checks
         env:
           NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
