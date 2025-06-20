@@ -31,17 +31,22 @@ jobs:
       - name: Test imports
         run: pnpm test
 
+      - name: Create package tarball
+        run: pnpm pack
+        
       - name: Upload build artifacts
         uses: actions/upload-artifact@v4
         with:
           name: dist
-          path: dist/
+          path: |
+            dist/
+            *.tgz
 
-  publish:
+  release-and-publish:
     needs: build-and-test
     runs-on: ubuntu-latest
     permissions:
-      contents: read
+      contents: write
       packages: write
 
     steps:
@@ -68,6 +73,31 @@ jobs:
 
       - name: Install dependencies
         run: pnpm install --no-frozen-lockfile
+
+      - name: Get version from tag
+        id: get_version
+        run: echo "VERSION=${GITHUB_REF#refs/tags/v}" >> $GITHUB_OUTPUT
+
+      - name: Create GitHub Release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ github.ref }}
+          release_name: Release ${{ steps.get_version.outputs.VERSION }}
+          draft: false
+          prerelease: false
+
+      - name: Upload Release Asset
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./amoga-org-font-awesome-${{ steps.get_version.outputs.VERSION }}.tgz
+          asset_name: amoga-org-font-awesome-${{ steps.get_version.outputs.VERSION }}.tgz
+          asset_content_type: application/gzip
 
       - name: Publish to GitHub Packages
         run: pnpm publish
