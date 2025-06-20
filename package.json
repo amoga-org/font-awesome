@@ -6,13 +6,13 @@
   "type": "module",
   "publishConfig": {
     "access": "public",
-    "registry": "https://npm.pkg.github.com"
+    "registry": "https://registry.npmjs.org/"
   },
   "exports": {
-    "./icons/classic/light": "./dist/icons/classic/light/index.js",
-    "./icons/classic/regular": "./dist/icons/classic/regular/index.js",
-    "./icons/classic/solid": "./dist/icons/classic/solid/index.js",
-    "./icons/brands": "./dist/icons/brands/index.js",
+    "./light": "./dist/icons/classic/light/index.js",
+    "./regular": "./dist/icons/classic/regular/index.js",
+    "./solid": "./dist/icons/classic/solid/index.js",
+    "./brands": "./dist/icons/brands/index.js",
     "./icons/duotone": "./dist/icons/duotone/index.js",
     "./icons/duotone-light": "./dist/icons/duotone-light/index.js",
     "./icons/duotone-regular": "./dist/icons/duotone-regular/index.js",
