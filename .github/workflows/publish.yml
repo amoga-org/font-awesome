@@ -8,11 +8,9 @@ on:
     branches: [feat/public-package]
 
 jobs:
-  build-and-test:
+  test:
+    if: github.event_name == 'pull_request' || (github.event_name == 'push' && !startsWith(github.ref, 'refs/tags/'))
     runs-on: ubuntu-latest
-    permissions:
-      contents: write
-      packages: write
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -36,29 +34,47 @@ jobs:
 
       - name: Test imports
         run: pnpm test
+      
+      - name: Validate
+        run: pnpm run validate
 
-      - name: Pack package
-        run: |
-          pnpm pack
-          echo "PACKAGE_NAME=$(ls amoga-org-font-awesome-*.tgz)" >> $GITHUB_ENV
-        
-      - name: Upload artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: package-artifacts
-          path: |
-            dist/
-            ${{ env.PACKAGE_NAME }}
-          if-no-files-found: error
-
-  release-and-publish:
-    if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/public-v')
+  create-tag:
+    if: github.event_name == 'push' && github.ref == 'refs/heads/feat/public-package'
     needs: test
     runs-on: ubuntu-latest
     permissions:
       contents: write
-      packages: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Get version
+        id: get_version
+        run: |
+          VERSION=$(node -p "require('./package.json').version")
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+      - name: Check if tag exists
+        id: check_tag
+        run: |
+          if git rev-parse "public-v${{ steps.get_version.outputs.version }}" >/dev/null 2>&1; then
+            echo "exists=true" >> $GITHUB_OUTPUT
+          else
+            echo "exists=false" >> $GITHUB_OUTPUT
+          fi
+      - name: Create and push tag
+        if: steps.check_tag.outputs.exists != 'true'
+        run: |
+          git config --local user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+          git tag "public-v${{ steps.get_version.outputs.version }}"
+          git push origin "public-v${{ steps.get_version.outputs.version }}"
 
+  publish:
+    if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/public-v')
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      packages: write
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -75,43 +91,23 @@ jobs:
           cache: "pnpm"
           registry-url: "https://registry.npmjs.org/"
 
-      - name: Download artifacts
-        uses: actions/download-artifact@v4
-        with:
-          name: package-artifacts
-          path: .
-
       - name: Install dependencies
         run: pnpm install
 
+      - name: Build package
+        run: pnpm run build
+
+      - name: Pack package
+        run: |
+          pnpm pack
+          echo "PACKAGE_NAME=$(ls amoga-org-font-awesome-*.tgz)" >> $GITHUB_ENV
+
       - name: Get version from tag
         id: get_version
-        run: |
-          VERSION=${GITHUB_REF#refs/tags/public-v}
-          echo "VERSION=$VERSION" >> $GITHUB_OUTPUT
-
-      - name: Set package name
-        run: echo "PACKAGE_NAME=$(ls amoga-org-font-awesome-*.tgz)" >> $GITHUB_ENV
-
-      - name: Check if release exists
-        id: check_release
-        run: |
-          RELEASE_ID=$(curl -s -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
-            "https://api.github.com/repos/${{ github.repository }}/releases/tags/${{ github.ref_name }}" \
-            | jq -r '.id')
-          if [ "$RELEASE_ID" != "null" ]; then
-            echo "exists=true" >> $GITHUB_OUTPUT
-            echo "release_id=$RELEASE_ID" >> $GITHUB_OUTPUT
-            echo "upload_url=$(curl -s -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
-              "https://api.github.com/repos/${{ github.repository }}/releases/$RELEASE_ID" \
-              | jq -r '.upload_url')" >> $GITHUB_OUTPUT
-          else
-            echo "exists=false" >> $GITHUB_OUTPUT
-          fi
+        run: echo "VERSION=${GITHUB_REF#refs/tags/public-v}" >> $GITHUB_OUTPUT
 
       - name: Create GitHub Release
         id: create_release
-        if: steps.check_release.outputs.exists != 'true'
         uses: actions/create-release@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -126,7 +122,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          upload_url: ${{ steps.check_release.outputs.exists == 'true' && steps.check_release.outputs.upload_url || steps.create_release.outputs.upload_url }}
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
           asset_path: ${{ env.PACKAGE_NAME }}
           asset_name: ${{ env.PACKAGE_NAME }}
           asset_content_type: application/gzip
@@ -135,69 +131,3 @@ jobs:
         run: pnpm publish --no-git-checks --access public
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_AUTH_TOKEN }}
-
-  test:
-    if: github.event_name == 'pull_request' || (github.event_name == 'push' && !startsWith(github.ref, 'refs/tags/'))
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: pnpm/action-setup@v4
-        with:
-          version: 8
-      - uses: actions/setup-node@v4
-        with:
-          node-version: '18'
-          cache: 'pnpm'
-      - run: pnpm install
-      - run: pnpm run build
-      - run: pnpm test
-      - run: pnpm run validate
-      - name: Pack package
-        run: |
-          pnpm pack
-          echo "PACKAGE_NAME=$(ls amoga-org-font-awesome-*.tgz)" >> $GITHUB_ENV
-      - name: Upload artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: package-artifacts
-          path: |
-            dist/
-            ${{ env.PACKAGE_NAME }}
-          if-no-files-found: error
-
-  create-tag:
-    if: github.event_name == 'push' && github.ref == 'refs/heads/feat/public-package'
-    needs: test
-    runs-on: ubuntu-latest
-    permissions:
-      contents: write
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-          token: ${{ secrets.GITHUB_TOKEN }}
-      - id: get_version
-        run: |
-          VERSION=$(node -p "require('./package.json').version")
-          echo "version=$VERSION" >> $GITHUB_OUTPUT
-      - id: check_tag
-        run: |
-          if git rev-parse "public-v${{ steps.get_version.outputs.version }}" >/dev/null 2>&1; then
-            echo "exists=true" >> $GITHUB_OUTPUT
-          else
-            echo "exists=false" >> $GITHUB_OUTPUT
-          fi
-      - if: steps.check_tag.outputs.exists != 'true'
-        run: |
-          git config --local user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git config --local user.name "github-actions[bot]"
-          git tag "public-v${{ steps.get_version.outputs.version }}"
-          git push origin "public-v${{ steps.get_version.outputs.version }}"
-
-  publish:
-    if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/public-v')
-    needs: test
-    runs-on: ubuntu-latest
-    permissions:
-      contents: write
-      packages: write
