@@ -92,6 +92,28 @@ This will:
 3. Create TypeScript definition files
 4. Output everything to the `dist/` directory
 
+## Publishing
+
+This package is automatically published to GitHub Packages when a new version tag is pushed to the repository.
+
+### Automated Publishing
+
+1.  **Update Version**: Update the `version` in `package.json`.
+2.  **Commit Changes**: Commit the version update.
+3.  **Create and Push Tag**: Create a tag with a `v` prefix and push it.
+
+    ```bash
+    # Example for version 1.0.8
+    git tag v1.0.8
+    git push origin v1.0.8
+    ```
+
+This will trigger the GitHub Actions workflow to build and publish the package.
+
+### Manual Publishing
+
+If you need to publish manually, refer to the detailed instructions in the [Manual Publishing Guide](MANUAL_PUBLISH.md).
+
 ## File Structure
 
 ```
